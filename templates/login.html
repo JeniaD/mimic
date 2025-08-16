@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Login{% endblock%}
+
+{% block MENU %}
+<li class="pure-menu-item"><a href="#home" class="pure-menu-link">main</a></li>
+<li class="pure-menu-item"><a href="#about" class="pure-menu-link">help</a></li>
+<!-- <li class="pure-menu-item"><a href="#contact" class="pure-menu-link">settings</a></li> -->
+{% endblock%}
+
+{% block HEADER %}
+<h1>Login</h1>
+{% endblock%}
+
+{% block CONTENT %}
+<br>Please log in.
+<form action="/login" method="post" autocomplete="off">
+    Username: <input type="text" name="username" id="username"><br>
+    Password: <input type="password" name="password" id="password" required><br>
+    <button type="submit">Login</button>
+</form>
+{% endblock %}
