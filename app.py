@@ -8,9 +8,21 @@ app.config.from_pyfile('config.py') #, silent=True)
 db = SQLAlchemy(app)
 
 class Users(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
+    campaigns = db.relationship('Campaigns', back_populates='owner')
+
+class Campaigns(db.Model):
+    __tablename__ = 'campaigns'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(250), unique=True, nullable=False)
+    password = db.Column(db.String(250), nullable=False)
+
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    owner = db.relationship('Users', back_populates='campaigns')
+
 
 @app.before_request
 def check_authentication():
@@ -24,6 +36,10 @@ def check_authentication():
 @app.route("/")
 def index():
     return render_template("base.html")
+
+@app.route("/campaigns")
+def campaigns():
+    return render_template("campaigns.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Login{% endblock%}
+
+{% block MENU %}
+<li class="pure-menu-item"><a href="/" class="pure-menu-link">main</a></li>
+<li class="pure-menu-item menu-item-divided pure-menu-selected"><a href="/campaigns" class="pure-menu-link">campaigns</a></li>
+<li class="pure-menu-item"><a href="/help" class="pure-menu-link">help</a></li>
+<li class="pure-menu-item"><a href="/settings" class="pure-menu-link">settings</a></li>
+{% endblock%}
+
+{% block HEADER %}
+<h1>Campaigns</h1>
+<h2>Set up and manage your campaigns</h2>
+{% endblock%}
+
+{% block CONTENT %}
+<p>
+    This is all of the campaigns launched by current user.
+</p>
+
+<table>
+    <tr>
+        <th>Campaign</th>
+        <th>Description</th>
+        <th>Target count</th>
+        <th>Opened email</th>
+        <th>Phished</th>
+    </tr>
+    <tr>
+        <td>Alfreds Futterkiste</td>
+        <td>Maria Anders</td>
+        <td>34</td>
+        <td>34</td>
+        <td>34</td>
+    </tr>
+    <tr>
+        <td>Centro comercial Moctezuma</td>
+        <td>Francisco Chang</td>
+        <td>12</td>
+        <td>12</td>
+        <td>12</td>
+    </tr>
+</table>
+{% endblock %}
