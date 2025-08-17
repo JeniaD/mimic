@@ -1,7 +1,7 @@
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
-from app import app, db, Users
+from app import app, db, Users, Settings
 from config import DEFAULT_USER
 
 with app.app_context():
@@ -14,6 +14,9 @@ with app.app_context():
         db.session.add(admin)
         db.session.commit()
         print(f"Admin user {DEFAULT_USER} created.")
+    
+    # domain = input("Please enter domain name: ")
+    # Settings.set("domain", domain)
 
 def create_db(app):
     with app.app_context():

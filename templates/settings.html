@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Settings{% endblock%}
+
+{% block MENU %}
+<li class="pure-menu-item"><a href="/" class="pure-menu-link">main</a></li>
+<li class="pure-menu-item"><a href="/campaigns" class="pure-menu-link">campaigns</a></li>
+<li class="pure-menu-item"><a href="/help" class="pure-menu-link">help</a></li>
+<li class="pure-menu-item menu-item-divided pure-menu-selected"><a href="/settings" class="pure-menu-link">settings</a></li>
+{% endblock%}
+
+{% block HEADER %}
+<h1>Settings</h1>
+<h2>Manage MIMIC settings</h2>
+{% endblock%}
+
+{% block CONTENT %}
+<h3>Mail server configuration</h3>
+<form action="/settings" method="post">
+    Mail server: <input type="text" name="mserver" id="">
+    <button type="submit">Set</button>
+</form>
+<form action="/settings" method="post">
+    Mail port port: <input type="number" name="mport" id="">
+    <button type="submit">Set</button>
+</form>
+<form action="/settings" method="post">
+    Mail username: <input type="text" name="musername" id="">
+    <button type="submit">Set</button>
+</form>
+<form action="/settings" method="post">
+    Mail password: <input type="text" name="mpassword" id="">
+    <button type="submit">Set</button>
+</form>
+
+<h3>Campaign configuration</h3>
+<form action="/settings" method="post">
+    Mail sending delay: <input type="number" name="sdelay" id="">
+    <button type="submit">Set</button>
+</form>
+{% endblock %}
