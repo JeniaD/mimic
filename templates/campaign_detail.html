@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}{{ campaign.name }}{% endblock %}
+
+{% block HEADER %}
+<h1>{{ campaign.name }}</h1>
+<h2>{% if editable %}Configure and launch{% else %}Launched campaign{% endif %}</h2>
+{% endblock %}
+
+{% block CONTENT %}
+<p>
+  <a href="{{ url_for('campaigns') }}">← Campaigns</a>
+  ·
+  <a href="{{ url_for('mail_templates') }}">Mail templates</a>
+  ·
+  <a href="{{ url_for('senders') }}">Senders</a>
+</p>
+
+<form action="{{ url_for('campaign_detail', campaign_id=campaign.id) }}" method="post" style="display:inline">
+  <input type="hidden" name="action" value="copy">
+  <button type="submit" class="pure-button">Duplicate as new draft</button>
+</form>
+
+{% if editable %}
+
+<form action="{{ url_for('campaign_detail', campaign_id=campaign.id) }}" method="post" class="pure-form pure-form-stacked">
+
+  <h3>Configuration</h3>
+
+  <label for="description">Description</label>
+  <textarea id="description" name="description" rows="3" cols="70">{{ campaign.description or '' }}</textarea>
+
+  <h4>Clusters (targets)</h4>
+  {% if all_clusters %}
+    {% for cl in all_clusters %}
+    <label class="pure-checkbox">
+      <input type="checkbox" name="cluster_ids" value="{{ cl.id }}"
+        {% if cl.id in selected_cluster_ids %}checked{% endif %}>
+      {{ cl.name }}
+    </label><br>
+    {% endfor %}
+  {% else %}
+    <p>No clusters yet. <a href="{{ url_for('clusters_list') }}">Create clusters</a> and add people first.</p>
+  {% endif %}
+
+  <h4>Mail template</h4>
+  {% if all_templates %}
+  <select name="template_id">
+    <option value="">— select —</option>
+    {% for t in all_templates %}
+    <option value="{{ t.id }}" {% if selected_template_id == t.id %}selected{% endif %}>{{ t.name }}</option>
+    {% endfor %}
+  </select>
+  <label class="pure-checkbox">
+    <input type="checkbox" name="load_template_content"> On save, if body is empty, fill from selected template
+  </label>
+  {% else %}
+  <p>No templates. <a href="{{ url_for('mail_templates') }}">Create a mail template</a>.</p>
+  {% endif %}
+
+  <h4>Sender (SMTP identity)</h4>
+  {% if all_assets %}
+  <select name="asset_id">
+    <option value="">— select —</option>
+    {% for a in all_assets %}
+    <option value="{{ a.id }}" {% if selected_asset_id == a.id %}selected{% endif %}>{{ a.email }} ({{ a.server }})</option>
+    {% endfor %}
+  </select>
+  {% else %}
+  <p>No senders. <a href="{{ url_for('senders') }}">Add a sender</a>.</p>
+  {% endif %}
+
+  <h4>Message</h4>
+  <p class="content-subhead">Subject and body are <strong>Jinja2</strong> templates per recipient: use {% raw %}<code>{{ name }}</code> and <code>{{ text }}</code>{% endraw %} from each person in your clusters (cluster page: Name and Text).</p>
+  <label for="subject_draft">Subject</label>
+  <input type="text" id="subject_draft" name="subject_draft" style="width:100%;max-width:40em" value="{{ campaign.subject_draft or '' }}" placeholder="e.g. Quick question, {% raw %}{{ name }}{% endraw %}">
+
+  <label for="body_draft">Body</label>
+  <p class="content-subhead">Plain text or HTML. A click link and open tracking pixel are appended at launch.</p>
+  <textarea id="body_draft" name="body_draft" rows="14" cols="80" style="width:100%;max-width:50em" placeholder="Pretext / body">{{ campaign.body_draft or '' }}</textarea>
+
+  <p>
+    <button type="submit" name="action" value="save" class="pure-button pure-button-primary">Save draft</button>
+    <button type="submit" name="action" value="launch" class="pure-button pure-button-primary"
+      onclick="return confirm('Launch now? You will not be able to edit this campaign afterwards.');">Launch campaign</button>
+  </p>
+</form>
+
+<h3>Danger zone</h3>
+<form action="{{ url_for('campaign_detail', campaign_id=campaign.id) }}" method="post" onsubmit="return confirm('Delete this draft campaign?');">
+  <input type="hidden" name="action" value="delete">
+  <button type="submit" class="pure-button pure-button-danger">Delete draft</button>
+</form>
+
+{% else %}
+
+<h3>Summary</h3>
+<p><b>Status:</b> {{ campaign.status }}
+  {% if campaign.launched_at %} · <b>Launched:</b> {{ campaign.launched_at }}{% endif %}
+</p>
+<p><b>Description:</b> {{ campaign.description or '—' }}</p>
+<p><b>Targets (at launch):</b> {{ campaign.target_count_snapshot or 0 }}</p>
+
+<h4>Clusters used</h4>
+<ul>
+  {% for cl in campaign.clusters %}
+  <li>{{ cl.name }}</li>
+  {% else %}
+  <li>—</li>
+  {% endfor %}
+</ul>
+
+<h4>Template</h4>
+<p>{% if campaign.mailTemplates %}{{ campaign.mailTemplates[0].name }}{% else %}—{% endif %}</p>
+
+<h4>Sender</h4>
+<p>{% if campaign.assets %}{{ campaign.assets[0].email }}{% else %}—{% endif %}</p>
+
+<h4>Subject (sent)</h4>
+<pre style="white-space:pre-wrap">{{ campaign.subject_snapshot or '—' }}</pre>
+
+<h4>Body (sent, before tracking footer)</h4>
+<pre style="white-space:pre-wrap">{{ campaign.body_snapshot or '—' }}</pre>
+
+{% endif %}
+{% endblock %}

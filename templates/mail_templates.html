@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Mail templates{% endblock %}
+
+{% block HEADER %}
+<h1>Mail templates</h1>
+<h2>Reusable message bodies for campaigns</h2>
+{% endblock %}
+
+{% block CONTENT %}
+<p><a href="{{ url_for('campaigns') }}">← Campaigns</a></p>
+
+<h3>New template</h3>
+<form action="{{ url_for('mail_templates') }}" method="post" class="pure-form pure-form-stacked">
+  <label for="name">Name</label>
+  <input type="text" id="name" name="name" required maxlength="250">
+
+  <label for="content">Content</label>
+  <textarea id="content" name="content" rows="12" cols="80" style="width:100%;max-width:50em" placeholder="HTML or plain text"></textarea>
+
+  <button type="submit" class="pure-button pure-button-primary">Create</button>
+</form>
+
+<h3>All templates</h3>
+{% if templates %}
+<table class="pure-table pure-table-horizontal">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in templates %}
+    <tr>
+      <td>{{ t.name }}</td>
+      <td><a href="{{ url_for('mail_template_edit', template_id=t.id) }}">Edit</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No templates yet.</p>
+{% endif %}
+{% endblock %}

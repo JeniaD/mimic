@@ -1,31 +1,26 @@
 {% extends 'base.html' %}
 
-{% block PAGENAME %}Login{% endblock%}
+{% block BODY_CLASS %}layout-auth{% endblock %}
 
-{% block MENU %}
-<li class="pure-menu-item"><a href="#" class="pure-menu-link">main</a></li>
-<li class="pure-menu-item"><a href="#" class="pure-menu-link">help</a></li>
-<!-- <li class="pure-menu-item"><a href="#contact" class="pure-menu-link">settings</a></li> -->
-{% endblock%}
+{% block PAGENAME %}Login{% endblock %}
 
 {% block HEADER %}
-<h1>Login</h1>
-{% endblock%}
+<h1>Sign in</h1>
+<h2>MIMIC</h2>
+{% endblock %}
 
 {% block CONTENT %}
-<br>Please log in.
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <ul>
-        {% for category, message in messages %}
-            <li><b>{{ category }}</b>: {{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
-<form action="/login" method="post" autocomplete="off">
-    Username: <input type="text" name="username" id="username" required><br>
-    Password: <input type="password" name="password" id="password" required><br>
-    <button type="submit">Login</button>
+<p class="lead">Enter your credentials to continue.</p>
+
+<form action="{{ url_for('login') }}" method="post" autocomplete="off" class="pure-form pure-form-stacked">
+  <label for="username">Username</label>
+  <input type="text" name="username" id="username" required autocomplete="username">
+
+  <label for="password">Password</label>
+  <input type="password" name="password" id="password" required autocomplete="current-password">
+
+  <p style="margin-top:1rem">
+    <button type="submit" class="pure-button pure-button-primary">Sign in</button>
+  </p>
 </form>
 {% endblock %}

@@ -1,45 +1,60 @@
 {% extends 'base.html' %}
 
-{% block PAGENAME %}Campaigns{% endblock%}
-
-{% block MENU %}
-<li class="pure-menu-item"><a href="/" class="pure-menu-link">main</a></li>
-<li class="pure-menu-item menu-item-divided pure-menu-selected"><a href="/campaigns" class="pure-menu-link">campaigns</a></li>
-<li class="pure-menu-item"><a href="/help" class="pure-menu-link">help</a></li>
-<li class="pure-menu-item"><a href="/settings" class="pure-menu-link">settings</a></li>
-{% endblock%}
+{% block PAGENAME %}Campaigns{% endblock %}
 
 {% block HEADER %}
 <h1>Campaigns</h1>
 <h2>Set up and manage your campaigns</h2>
-{% endblock%}
+{% endblock %}
 
 {% block CONTENT %}
 <p>
-    This is all of the campaigns launched by current user.
+  <a href="{{ url_for('mail_templates') }}">Mail templates</a>
+  ·
+  <a href="{{ url_for('senders') }}">Senders (SMTP)</a>
 </p>
 
-<table>
+<h3>New campaign</h3>
+<form action="{{ url_for('campaigns') }}" method="post" class="pure-form pure-form-stacked">
+  <label for="name">Name</label>
+  <input type="text" id="name" name="name" required maxlength="250" placeholder="Unique campaign name">
+
+  <label for="description">Description (optional)</label>
+  <textarea id="description" name="description" rows="2" cols="60"></textarea>
+
+  <button type="submit" class="pure-button pure-button-primary">Create</button>
+</form>
+
+<h3>Your campaigns</h3>
+{% if rows %}
+<table class="pure-table pure-table-horizontal">
+  <thead>
     <tr>
-        <th>Campaign</th>
-        <th>Description</th>
-        <th>Target count</th>
-        <th>Opened email</th>
-        <th>Phished</th>
+      <th>Campaign</th>
+      <th>Description</th>
+      <th>Status</th>
+      <th>Targets</th>
+      <th>Opened</th>
+      <th>Clicked link</th>
+      <th></th>
     </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    {% set c = row.campaign %}
     <tr>
-        <td>Alfreds Futterkiste</td>
-        <td>Maria Anders</td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
+      <td>{{ c.name }}</td>
+      <td>{{ (c.description or '')[:80] }}{% if c.description and c.description|length > 80 %}…{% endif %}</td>
+      <td>{{ c.status }}{% if c.locked_at %} (locked){% endif %}</td>
+      <td>{{ row.targets }}</td>
+      <td>{{ row.opens }}</td>
+      <td>{{ row.clicks }}</td>
+      <td><a href="{{ url_for('campaign_detail', campaign_id=c.id) }}">View</a></td>
     </tr>
-    <tr>
-        <td>Centro comercial Moctezuma</td>
-        <td>Francisco Chang</td>
-        <td>12</td>
-        <td>12</td>
-        <td>12</td>
-    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+{% else %}
+<p>No campaigns yet. Create one above.</p>
+{% endif %}
 {% endblock %}
