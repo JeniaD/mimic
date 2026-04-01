@@ -10,7 +10,11 @@ with app.app_context():
 
     if not Users.query.filter_by(username=DEFAULT_USER).first():
         password = input("Set admin password: ")
-        admin = Users(username=DEFAULT_USER, password=generate_password_hash(password))
+        # Some Python builds don't expose hashlib.scrypt; PBKDF2 works broadly.
+        admin = Users(
+            username=DEFAULT_USER,
+            password=generate_password_hash(password, method="pbkdf2:sha256"),
+        )
         db.session.add(admin)
         db.session.commit()
         print(f"Admin user {DEFAULT_USER} created.")
