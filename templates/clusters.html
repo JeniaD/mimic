@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Clusters{% endblock %}
+
+{% block HEADER %}
+<h1>Clusters</h1>
+<h2>Groups of people for campaigns</h2>
+{% endblock %}
+
+{% block CONTENT %}
+<h3>Create cluster</h3>
+<form action="{{ url_for('clusters_list') }}" method="post" class="pure-form pure-form-stacked">
+  <label for="name">Name</label>
+  <input type="text" id="name" name="name" required maxlength="250" placeholder="e.g. Engineering — EU">
+
+  <label for="description">Description (optional)</label>
+  <textarea id="description" name="description" rows="3" cols="60" placeholder="What this group is for"></textarea>
+
+  <button type="submit" class="pure-button pure-button-primary">Create cluster</button>
+</form>
+
+<h3>All clusters</h3>
+{% if clusters %}
+<table class="pure-table pure-table-horizontal">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>People</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for cluster, count in clusters %}
+    <tr>
+      <td>{{ cluster.name }}</td>
+      <td>{{ count }}</td>
+      <td><a href="{{ url_for('cluster_detail', cluster_id=cluster.id) }}">View</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No clusters yet. Create one above.</p>
+{% endif %}
+{% endblock %}

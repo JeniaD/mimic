@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Home{% endblock %}
+
+{% block HEADER %}
+<h1>MIMIC</h1>
+<h2>Authorized email simulation</h2>
+{% endblock %}
+
+{% block CONTENT %}
+<p class="lead">Use the sidebar to manage clusters, templates, senders, and campaigns. See <a href="{{ url_for('help') }}">Help</a> for a full walkthrough.</p>
+
+<div class="home-cards">
+  <div class="card">
+    <h3 class="card-title"><a href="{{ url_for('clusters_list') }}">Clusters</a></h3>
+    <p>Target groups and recipient personalization.</p>
+  </div>
+  <div class="card">
+    <h3 class="card-title"><a href="{{ url_for('campaigns') }}">Campaigns</a></h3>
+    <p>Configure, launch, and review results.</p>
+  </div>
+  <div class="card">
+    <h3 class="card-title"><a href="{{ url_for('mail_templates') }}">Mail templates</a></h3>
+    <p>Reusable message bodies.</p>
+  </div>
+  <div class="card">
+    <h3 class="card-title"><a href="{{ url_for('senders') }}">Senders</a></h3>
+    <p>SMTP identities for outbound mail.</p>
+  </div>
+</div>
+
+<p class="content-subhead"><a href="{{ url_for('settings') }}">Settings</a> · <a href="{{ url_for('help') }}">Help</a></p>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}{{ cluster.name }}{% endblock %}
+
+{% block HEADER %}
+<h1>{{ cluster.name }}</h1>
+<h2>Cluster details and people</h2>
+{% endblock %}
+
+{% block CONTENT %}
+<p><a href="{{ url_for('clusters_list') }}">← Back to clusters</a></p>
+
+<h3>Description</h3>
+<form action="{{ url_for('cluster_detail', cluster_id=cluster.id) }}" method="post" class="pure-form pure-form-stacked">
+  <input type="hidden" name="action" value="update_cluster">
+  <textarea name="description" rows="4" cols="70" placeholder="Optional notes about this cluster">{{ cluster.description or '' }}</textarea>
+  <button type="submit" class="pure-button">Save description</button>
+</form>
+
+<h3>Add person</h3>
+<p>Email must be unique within this cluster. <strong>Name</strong> and <strong>Text</strong> are merged into campaign mail (see campaign subject/body: {% raw %}<code>{{ name }}</code>, <code>{{ text }}</code>{% endraw %}).</p>
+<form action="{{ url_for('cluster_detail', cluster_id=cluster.id) }}" method="post" class="pure-form pure-form-aligned">
+  <input type="hidden" name="action" value="add_target">
+  <fieldset>
+    <div class="pure-control-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required placeholder="person@example.com">
+    </div>
+    <div class="pure-control-group">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" placeholder="Greeting / display name for templates">
+    </div>
+    <div class="pure-control-group">
+      <label for="personal_text">Text</label>
+      <textarea id="personal_text" name="personal_text" rows="3" cols="50" placeholder="Extra line for templates (e.g. department, scenario detail)"></textarea>
+    </div>
+    <div class="pure-controls">
+      <button type="submit" class="pure-button pure-button-primary">Add</button>
+    </div>
+  </fieldset>
+</form>
+
+<h3>People ({{ targets|length }})</h3>
+{% if targets %}
+<table class="pure-table pure-table-horizontal">
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>Name</th>
+      <th>Text</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in targets %}
+    <tr>
+      <td>{{ t.email }}</td>
+      <td>{{ t.name or '—' }}</td>
+      <td>{{ (t.personal_text or '')[:80] }}{% if t.personal_text and t.personal_text|length > 80 %}…{% endif %}</td>
+      <td>
+        <form action="{{ url_for('cluster_detail', cluster_id=cluster.id) }}" method="post" style="display:inline" onsubmit="return confirm('Remove this person from the cluster?');">
+          <input type="hidden" name="action" value="delete_target">
+          <input type="hidden" name="target_id" value="{{ t.id }}">
+          <button type="submit" class="pure-button">Remove</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No people yet. Add someone above.</p>
+{% endif %}
+
+<h3>Danger zone</h3>
+<form action="{{ url_for('cluster_detail', cluster_id=cluster.id) }}" method="post" onsubmit="return confirm('Delete this cluster and all people in it? This cannot be undone.');">
+  <input type="hidden" name="action" value="delete_cluster">
+  <button type="submit" class="pure-button pure-button-danger">Delete cluster</button>
+</form>
+{% endblock %}

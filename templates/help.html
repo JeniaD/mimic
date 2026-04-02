@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Help{% endblock %}
+
+{% block HEADER %}
+<h1>Help</h1>
+<h2>How to use MIMIC</h2>
+{% endblock %}
+
+{% block CONTENT %}
+
+<p><strong>MIMIC</strong> is a web app for planning and running <strong>authorized</strong> email simulation exercises (for example security awareness training). Use it only where you have explicit scope and approval. Misuse may violate law and policy.</p>
+
+<nav class="help-toc" aria-label="On this page">
+  <h3>On this page</h3>
+  <ul>
+    <li><a href="#overview">Overview of the workflow</a></li>
+    <li><a href="#login">Sign in</a></li>
+    <li><a href="#settings">Settings</a></li>
+    <li><a href="#clusters">Clusters (target groups)</a></li>
+    <li><a href="#templates">Mail templates</a></li>
+    <li><a href="#senders">Senders (SMTP)</a></li>
+    <li><a href="#campaigns">Campaigns</a></li>
+    <li><a href="#personalization">Personalized email (Jinja)</a></li>
+    <li><a href="#launch">Launching and tracking</a></li>
+    <li><a href="#urls">Public URL and tracking links</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+    <li><a href="#future">What is planned next</a></li>
+  </ul>
+</nav>
+
+<h2 id="overview">Overview of the workflow</h2>
+<p>Typical order of work:</p>
+<ol>
+  <li><strong><a href="{{ url_for('senders') }}">Senders</a></strong> — add at least one SMTP identity you are allowed to send from.</li>
+  <li><strong><a href="{{ url_for('mail_templates') }}">Mail templates</a></strong> (optional) — reusable message bodies you can pull into a campaign.</li>
+  <li><strong><a href="{{ url_for('clusters_list') }}">Clusters</a></strong> — create groups and add people (email plus personalization fields).</li>
+  <li><strong><a href="{{ url_for('campaigns') }}">Campaigns</a></strong> — create a campaign, attach clusters, template, and sender, write subject and body, then launch.</li>
+</ol>
+<p>After launch, the campaign is <strong>locked</strong>: you cannot edit it. To run again with changes, use <strong>Duplicate as new draft</strong> on the campaign page.</p>
+
+<h2 id="login">Sign in</h2>
+<p>Open the login page, enter your username and password, and submit. If you cannot sign in, confirm the account exists (see your deployment’s bootstrap process, for example <code>init.py</code> or the default user in <code>config.py</code>). Use <strong>Logout</strong> when finished on a shared machine.</p>
+
+<h2 id="settings">Settings</h2>
+<p>The <a href="{{ url_for('settings') }}">Settings</a> page stores global options such as default mail server parameters and send delay. Campaign sending primarily uses the <strong>sender</strong> you pick on each campaign (see <a href="#senders">Senders</a>), but you may still use Settings for convenience or future features.</p>
+<p>Save all fields with one <strong>Save settings</strong> action. Use the <strong>clear</strong> checkboxes next to a field if you need to wipe a stored value.</p>
+
+<h2 id="clusters">Clusters (target groups)</h2>
+<p><a href="{{ url_for('clusters_list') }}">Clusters</a> are named lists of people. Each person has:</p>
+<ul>
+  <li><strong>Email</strong> — required; must be unique within that cluster.</li>
+  <li><strong>Name</strong> — optional; used in mail templates as {% raw %}<code>{{ name }}</code>{% endraw %}.</li>
+  <li><strong>Text</strong> — optional; longer text for {% raw %}<code>{{ text }}</code>{% endraw %} (for example department or scenario-specific line).</li>
+</ul>
+<p>Open a cluster to edit its description, add or remove people, or delete the whole cluster. Deleting a cluster removes its people from that cluster and unlinks it from campaigns that referenced it.</p>
+
+<h2 id="templates">Mail templates</h2>
+<p><a href="{{ url_for('mail_templates') }}">Mail templates</a> are saved messages you can reuse. Create a template with a name and content. Edit or delete from the template’s page.</p>
+<p>When configuring a <strong>draft</strong> campaign, you can select a template and optionally use <strong>On save, if body is empty, fill from selected template</strong> to copy the template into the campaign body once.</p>
+<p>Template content can include the same Jinja placeholders as campaigns ({% raw %}<code>{{ name }}</code>, <code>{{ text }}</code>{% endraw %}); they are filled per recipient when the campaign is launched.</p>
+
+<h2 id="senders">Senders (SMTP)</h2>
+<p><a href="{{ url_for('senders') }}">Senders</a> are SMTP identities: from-address, server, port, and password. Create one or more, then edit or delete as needed.</p>
+<ul>
+  <li>Port <strong>587</strong> is typical (STARTTLS).</li>
+  <li>Port <strong>465</strong> uses implicit TLS (SMTP over SSL) in this app.</li>
+</ul>
+<p>Each campaign picks exactly one sender for that run. Keep credentials appropriate to your environment; treat them as sensitive even for short tests.</p>
+
+<h2 id="campaigns">Campaigns</h2>
+<h3>Create and list</h3>
+<p>On <a href="{{ url_for('campaigns') }}">Campaigns</a>, give the campaign a <strong>unique name</strong> and optional description, then create it. The table shows status, approximate target count, how many recipients <strong>opened</strong> (tracking pixel) and <strong>clicked the link</strong> (distinct people per event type).</p>
+
+<h3>Configure a draft</h3>
+<p>Open a campaign to configure:</p>
+<ul>
+  <li><strong>Clusters</strong> — one or more; recipients are the <strong>union</strong> of people in those clusters, with duplicate emails merged once.</li>
+  <li><strong>Mail template</strong> — one template (optional helper for drafting).</li>
+  <li><strong>Sender</strong> — one SMTP identity (required to launch).</li>
+  <li><strong>Subject</strong> and <strong>Body</strong> — see <a href="#personalization">Personalization</a> below.</li>
+</ul>
+<p>Use <strong>Save draft</strong> often. Use <strong>Delete draft</strong> only if you want to remove this campaign entirely (only while it is still a draft).</p>
+
+<h3>Launch</h3>
+<p><strong>Launch campaign</strong> validates your choices, locks the campaign, records a run, creates per-recipient tracking tokens, logs a <strong>sent</strong> event per person, and attempts to send email to each address. After launch you see the frozen subject and body template (placeholders unchanged in the summary), plus which clusters, template, and sender were used.</p>
+
+<h3>Duplicate</h3>
+<p><strong>Duplicate as new draft</strong> copies the campaign configuration into a new draft (including associations and subject/body text). You can edit the new draft freely. Use this to rerun a similar exercise or to iterate after a launch.</p>
+
+<h2 id="personalization">Personalized email (Jinja)</h2>
+<p>Campaign <strong>subject</strong> and <strong>body</strong> are <strong>Jinja2</strong> templates. For each recipient, the app fills:</p>
+<ul>
+  <li>{% raw %}<code>{{ name }}</code>{% endraw %} — from the person’s <strong>Name</strong> on the cluster.</li>
+  <li>{% raw %}<code>{{ text }}</code>{% endraw %} — from the person’s <strong>Text</strong> field.</li>
+</ul>
+<p>You can write plain text or HTML in the body. If the result looks like HTML (contains angle brackets), it is sent as HTML; otherwise lines are wrapped for readability.</p>
+<p>Example subject: <code>Hi {% raw %}{{ name }}{% endraw %}, quick question</code>. Example body line: <code>Dear {% raw %}{{ name }}{% endraw %}, … {% raw %}{{ text }}{% endraw %}</code>.</p>
+
+<h2 id="launch">Launching and tracking</h2>
+<p>Each outgoing message includes:</p>
+<ul>
+  <li>A <strong>click</strong> link — when opened in a browser, the app records a <strong>click</strong> event and redirects to the configured redirect URL (see <code>CLICK_REDIRECT_URL</code> in <code>config.py</code>).</li>
+  <li>An <strong>open</strong> pixel — when the mail client loads images, the app records an <strong>open</strong> event. Some clients block images; opens may be undercounted.</li>
+</ul>
+<p>Campaign statistics count <strong>distinct people</strong> with at least one open or click, aggregated across runs for that campaign.</p>
+
+<h2 id="urls">Public URL and tracking links</h2>
+<p>Tracking URLs are built from the address you use to <strong>launch</strong> the campaign (for example <code>http://127.0.0.1:5000/</code> locally). Recipients must be able to reach that host from their mail client. For real recipients on the internet, run MIMIC behind a reachable hostname or tunnel (for example ngrok) and launch using that base URL.</p>
+<p>Engagement callbacks (open/click) are handled by <strong>this</strong> application. A separate listener or second process for raw connections or hosted simulation pages may be added later; that does not change how you configure clusters and campaigns today.</p>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+<dl>
+  <dt>Launch says “Selected clusters have no people”</dt>
+  <dd>Add people under <a href="{{ url_for('clusters_list') }}">Clusters</a>, or select clusters that contain recipients.</dd>
+  <dt>Launch says a template or sender is missing</dt>
+  <dd>Select one mail template (if you rely on it) and one sender before launch. Create assets under <a href="{{ url_for('senders') }}">Senders</a> if the list is empty.</dd>
+  <dt>Some emails failed to send</dt>
+  <dd>Check SMTP host, port, TLS mode (587 vs 465), username/password, and that the provider allows sending from that from-address. The flash message may include the first error returned.</dd>
+  <dt>Opens or clicks stay at zero</dt>
+  <dd>Confirm tracking URLs in the received mail point to a host the recipient can reach. Try loading the link manually. Remember many clients block remote images.</dd>
+  <dt>I need to change a launched campaign</dt>
+  <dd>You cannot edit a locked campaign. Use <strong>Duplicate as new draft</strong> and launch the copy.</dd>
+</dl>
+
+<h2 id="future">What is planned next</h2>
+<p>Future work may include a dedicated listener process for callbacks and hosted pages (for example simulation landing flows), plus UI and design improvements. The core flow—clusters, templates, senders, campaigns, personalization, and tracking—remains the foundation.</p>
+
+<p class="content-subhead"><a href="{{ url_for('campaigns') }}">Back to campaigns</a> · <a href="{{ url_for('index') }}">Home</a></p>
+
+{% endblock %}

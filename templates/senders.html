@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Senders{% endblock %}
+
+{% block HEADER %}
+<h1>Senders</h1>
+<h2>SMTP identities used to send campaign mail</h2>
+{% endblock %}
+
+{% block CONTENT %}
+<p><a href="{{ url_for('campaigns') }}">← Campaigns</a></p>
+
+<h3>New sender</h3>
+<form action="{{ url_for('senders') }}" method="post" class="pure-form pure-form-aligned">
+  <fieldset>
+    <div class="pure-control-group">
+      <label for="email">From email</label>
+      <input type="email" id="email" name="email" required placeholder="sender@example.com">
+    </div>
+    <div class="pure-control-group">
+      <label for="server">SMTP server</label>
+      <input type="text" id="server" name="server" required placeholder="smtp.example.com">
+    </div>
+    <div class="pure-control-group">
+      <label for="port">Port</label>
+      <input type="number" id="port" name="port" placeholder="587" min="1" max="65535">
+    </div>
+    <div class="pure-control-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required autocomplete="off">
+    </div>
+    <div class="pure-controls">
+      <button type="submit" class="pure-button pure-button-primary">Create</button>
+    </div>
+  </fieldset>
+</form>
+
+<h3>All senders</h3>
+{% if senders %}
+<table class="pure-table pure-table-horizontal">
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>Server</th>
+      <th>Port</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in senders %}
+    <tr>
+      <td>{{ s.email }}</td>
+      <td>{{ s.server }}</td>
+      <td>{{ s.port or '—' }}</td>
+      <td><a href="{{ url_for('sender_edit', asset_id=s.id) }}">Edit</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No senders yet.</p>
+{% endif %}
+{% endblock %}

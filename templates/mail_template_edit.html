@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Edit template{% endblock %}
+
+{% block HEADER %}
+<h1>{{ template.name }}</h1>
+<h2>Edit mail template</h2>
+{% endblock %}
+
+{% block CONTENT %}
+<p><a href="{{ url_for('mail_templates') }}">← Mail templates</a></p>
+
+<form action="{{ url_for('mail_template_edit', template_id=template.id) }}" method="post" class="pure-form pure-form-stacked">
+  <label for="name">Name</label>
+  <input type="text" id="name" name="name" required value="{{ template.name }}" maxlength="250">
+
+  <label for="content">Content</label>
+  <textarea id="content" name="content" rows="14" cols="80" style="width:100%;max-width:50em">{{ template.content or '' }}</textarea>
+
+  <p>
+    <button type="submit" class="pure-button pure-button-primary">Save</button>
+  </p>
+</form>
+
+<form action="{{ url_for('mail_template_edit', template_id=template.id) }}" method="post" onsubmit="return confirm('Delete this template?');">
+  <input type="hidden" name="action" value="delete">
+  <button type="submit" class="pure-button pure-button-danger">Delete</button>
+</form>
+{% endblock %}

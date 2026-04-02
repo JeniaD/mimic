@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block PAGENAME %}Edit sender{% endblock %}
+
+{% block HEADER %}
+<h1>{{ sender.email }}</h1>
+<h2>Edit sender</h2>
+{% endblock %}
+
+{% block CONTENT %}
+<p><a href="{{ url_for('senders') }}">← Senders</a></p>
+
+<form action="{{ url_for('sender_edit', asset_id=sender.id) }}" method="post" class="pure-form pure-form-aligned">
+  <fieldset>
+    <div class="pure-control-group">
+      <label for="email">From email</label>
+      <input type="email" id="email" name="email" required value="{{ sender.email }}">
+    </div>
+    <div class="pure-control-group">
+      <label for="server">SMTP server</label>
+      <input type="text" id="server" name="server" required value="{{ sender.server }}">
+    </div>
+    <div class="pure-control-group">
+      <label for="port">Port</label>
+      <input type="number" id="port" name="port" value="{{ sender.port or '' }}" placeholder="587">
+    </div>
+    <div class="pure-control-group">
+      <label for="password">New password</label>
+      <input type="password" id="password" name="password" autocomplete="off" placeholder="Leave blank to keep current">
+    </div>
+    <div class="pure-controls">
+      <button type="submit" class="pure-button pure-button-primary">Save</button>
+    </div>
+  </fieldset>
+</form>
+
+<form action="{{ url_for('sender_edit', asset_id=sender.id) }}" method="post" onsubmit="return confirm('Delete this sender?');">
+  <input type="hidden" name="action" value="delete">
+  <button type="submit" class="pure-button pure-button-danger">Delete</button>
+</form>
+{% endblock %}
